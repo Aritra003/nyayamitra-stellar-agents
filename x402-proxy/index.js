@@ -1,5 +1,4 @@
-require('dotenv').config({ path: '../.env' });
-const express = require('express');
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 
@@ -73,6 +72,7 @@ function x402Guard(agentName, price, resourcePath) {
 async function proxyToNyayaMitra(endpoint, body, res, req) {
   try {
     console.log(`🔄 Proxying to NyayaMitra: ${endpoint}`);
+    console.log('Calling URL:', `${NYAYAMITRA_URL}${endpoint}`);
     const response = await axios.post(
       `${NYAYAMITRA_URL}${endpoint}`,
       body,
@@ -124,7 +124,7 @@ app.post(
     if (!query || !jurisdiction) {
       return res.status(400).json({ error: 'query and jurisdiction are required' });
     }
-    await proxyToNyayaMitra('/v1/agents/vidhi/research', {
+    await proxyToNyayaMitra('/api/v1/research/query', {
       query, jurisdiction, court_level, output_format
     }, res, req);
   }
@@ -138,9 +138,9 @@ app.post(
     if (!legal_question || !jurisdiction) {
       return res.status(400).json({ error: 'legal_question and jurisdiction are required' });
     }
-    await proxyToNyayaMitra('/v1/agents/kosh/precedent', {
-      legal_question, jurisdiction, section, date_range
-    }, res, req);
+    await proxyToNyayaMitra('/api/v1/citations/verify', {
+  legal_question, jurisdiction, section, date_range
+}, res, req);
   }
 );
 
@@ -152,9 +152,9 @@ app.post(
     if (!question) {
       return res.status(400).json({ error: 'question is required' });
     }
-    await proxyToNyayaMitra('/v1/agents/sahayak/qa', {
-      question, jurisdiction: jurisdiction || 'IN', context
-    }, res, req);
+    await proxyToNyayaMitra('/api/v1/research/query', {
+  query: question, jurisdiction: jurisdiction || 'IN', context
+}, res, req);
   }
 );
 
